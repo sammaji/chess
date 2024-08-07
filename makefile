@@ -9,7 +9,7 @@ TARGET = chess
 all: $(TARGET)
 
 $(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) -o $@ $^
+	$(CC) $(CFLAGS) -o $@ $^ -lm
 	chmod +x $(TARGET)
 
 %.o: %.c
