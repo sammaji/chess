@@ -7,7 +7,7 @@ Terminal based chess game made in C.
 Just clone the project and use `make` to build all targets.
 
 ```bash
-git clone https://github.com/sammaji/chess_game
+git clone https://github.com/sammaji/chess && cd chess
 make all
 ./chess
 ```
