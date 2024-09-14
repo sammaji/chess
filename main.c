@@ -1,4 +1,5 @@
 #include "lib/utils.h"
+#include "tui/table.h"
 #include "types/types.h"
 #include <locale.h>
 #include <stdbool.h>
@@ -18,7 +19,6 @@ void render_piece(chstate *state, int row, int col, bool highlight) {
   const wchar_t chlookup[] = {
       [KING] = L'♛', [QUEEN] = L'♚', [BISHOP] = L'♝', [KNIGHT] = L'♞',
       [ROOK] = L'♜', [PAWN] = L'♟',  [NIL] = ' '};
-
   printansii(state->board[i]->color == BLACK ? state->_ansii_colbl
                                              : state->_ansii_colwt);
   if (highlight == true) {
@@ -32,48 +32,6 @@ void render_piece(chstate *state, int row, int col, bool highlight) {
   }
   wprintf(L"%lc", chlookup[state->board[i]->type]);
   printansii(_ansii_esc_RESET);
-}
-
-void render_divider(_divpos pos) {
-  const wchar_t divlookup[] = {L'┌', L'┬', L'┐', L'├', L'┼',
-                               L'┤', L'└', L'┴', L'┘'};
-  wprintf(L"   %lc", divlookup[3 * pos + 0]);
-  for (int i = 0; i < 7; i++) {
-    wprintf(L"───%lc", divlookup[3 * pos + 1]);
-  }
-  wprintf(L"───%lc\n", divlookup[3 * pos + 2]);
-}
-
-void render_board(chstate *state) {
-  bool highlight = false;
-  int *highlightmov = state->board[get_board_indexp(state->from)]->mov;
-  if (state->fromset == true && state->toset == false) {
-    highlight = true;
-  }
-  wprintf(L"   ");
-  for (int i = 0; i < 8; i++) {
-    wprintf(L"  %c ", i + 'a');
-  }
-  wprintf(L"\n");
-  render_divider(_divpos_TOP);
-  for (int i = 0; i < 8; i++) {
-    wprintf(L" %d │ ", 8 - i);
-    for (int j = 0; j < 8; j++) {
-      int index = get_board_index(i, j);
-      render_piece(state, i, j, highlight && (highlightmov[index] == 1));
-      wprintf(L" │ ");
-    }
-    wprintf(L"%d\n", 8 - i);
-    if (i != 7) {
-      render_divider(_divpos_MID);
-    }
-  };
-  render_divider(_divpos_BOTTOM);
-  wprintf(L"   ");
-  for (int i = 0; i < 8; i++) {
-    wprintf(L"  %c ", i + 'a');
-  }
-  wprintf(L"\n");
 }
 
 void render_logs(chstate *state) {
@@ -275,7 +233,6 @@ int readmov(chstate *state) {
     return 0;
   }
   point *p = state->fromset == false ? state->from : state->to;
-
   char buf[200];
   char *pl = state->player == BLACK ? "black" : "white";
   char *turn = state->fromset == false ? "from" : "to";
@@ -329,7 +286,10 @@ void render(chstate *state) {
 
   printansii(_ansii_esc_CLEAR);
   render_logs(state);
-  render_board(state);
+
+  wtbl *tbl = newchtbl(state);
+  wprinttbl(tbl);
+
   int s = readmov(state);
   if (s == 0) {
     return;
@@ -418,7 +378,7 @@ chstate *newstate() {
   return s;
 }
 
-int main(void) {
+int main(int argc, char **argv) {
   enter_alt_screen();
   setlocale(LC_CTYPE, "");
   chstate *state = newstate();
