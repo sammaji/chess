@@ -1,7 +1,7 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -pedantic -Wno-c23-extensions -Wno-strict-prototypes -Wno-unused-parameter
+CFLAGS = -Wall -Wextra -Wno-c23-extensions -Wno-strict-prototypes -Wno-unused-parameter
 
-SRCS = $(wildcard *.c)
+SRCS = $(wildcard *.c) $(wildcard lib/*.c)
 OBJS = $(SRCS:.c=.o)
 
 TARGET = chess
